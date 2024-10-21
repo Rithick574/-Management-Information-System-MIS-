@@ -1,8 +1,9 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-// import { clientRouter } from './routes/clientRoutes';
+import { clientRouter } from './routes/client.routes';
 // import { userRouter } from './routes/userRoutes';
+import { adminRouter } from './routes/admin.routes';
 
 dotenv.config();
 const app: Application = express();
@@ -14,14 +15,15 @@ const allowedOrigin = process.env.CLIENT_URL as string;
 
 const corsOptions = {
   credentials: true,
-  origin: allowedOrigin,
+  origin: [allowedOrigin],
   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
 };
 
 app.use(cors(corsOptions));
 
 // Routes
-// app.use('/api/v1/clients', clientRouter);
+app.use('/api/v1/clients', clientRouter);
+app.use('/api/v1/admins', adminRouter);
 // app.use('/api/v1/users', userRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
