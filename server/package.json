@@ -30,6 +30,6 @@
     "start:dev": "concurrently --kill-others-on-fail \"npm run watch\" \"npm run dev\""
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": ""
 }

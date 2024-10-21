@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 // import { clientRouter } from './routes/clientRoutes';
@@ -10,19 +10,23 @@ const app: Application = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const allowedOrigins = process.env.CLIENT_URL as string;
+const allowedOrigin = process.env.CLIENT_URL as string;
 
 const corsOptions = {
   credentials: true,
-  origin: [allowedOrigins],
+  origin: allowedOrigin,
   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
 };
 
 app.use(cors(corsOptions));
 
 // Routes
-// app.use('/api/clients', clientRouter);
-// app.use('/api/users', userRouter);
+// app.use('/api/v1/clients', clientRouter);
+// app.use('/api/v1/users', userRouter);
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  res.status(400).json({ error: err?.message || "Something went wrong", success: false });
+});
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
