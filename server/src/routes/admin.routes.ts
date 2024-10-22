@@ -1,9 +1,10 @@
 import { Router } from "express";   
-import { createAdmin } from "../controllers/adminController";
+import { createAdmin, getAdmin, getAllAdmins } from "../controllers/adminController";
 
 
-const router = Router();
+const router = Router(); 
 
-router.post("/", createAdmin);
+router.route("/").post(createAdmin).get(getAllAdmins)
+router.route("/:id").get(getAdmin)
 
 export { router as adminRouter };
