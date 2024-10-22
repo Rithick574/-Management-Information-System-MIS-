@@ -24,6 +24,10 @@ const Admin = (sequelize: Sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    role: {
+      type: DataTypes.ENUM('admin', 'client', 'user'),
+      defaultValue: 'admin',
+    },
   });
 };
 

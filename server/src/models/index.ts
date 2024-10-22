@@ -15,8 +15,5 @@ ClientModel.belongsTo(AdminModel, { foreignKey: "adminId", as: "admin" });
 ClientModel.hasMany(UserModel, { foreignKey: "clientId", as: "users" });
 UserModel.belongsTo(ClientModel, { foreignKey: "clientId", as: "client" });
 
-// Optionally: Admin can have direct Users
-AdminModel.hasMany(UserModel, { foreignKey: "adminId", as: "users" });
-UserModel.belongsTo(AdminModel, { foreignKey: "adminId", as: "admin" });
 
 export { AdminModel, ClientModel, UserModel };

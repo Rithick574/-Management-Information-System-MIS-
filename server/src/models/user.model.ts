@@ -1,72 +1,104 @@
-import { DataTypes, Sequelize, Model } from 'sequelize';
-import bcrypt from 'bcryptjs';
+import { DataTypes, Sequelize, Model, Optional } from "sequelize";
+import bcrypt from "bcryptjs";
 
 interface UserAttributes {
   id: string;
-  username: string;
+  name: string;
   email: string;
   password: string;
-  role: 'admin' | 'client' | 'user';
-  clientId?: string;
-  adminId?: string;
+  phone?: string;
+  role: "admin" | "client" | "user";
+  clientId: string;
+  pan:string;
 }
 
-interface UserInstance extends Model<UserAttributes>, UserAttributes {
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+
+interface UserInstance
+  extends Model<UserAttributes, UserCreationAttributes>,
+    UserAttributes {
   validPassword: (password: string) => Promise<boolean>;
 }
 
 const User = (sequelize: Sequelize) => {
-  const UserModel = sequelize.define<UserInstance>('User', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: true,
+  const UserModel = sequelize.define<UserInstance>(
+    "User",
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          len: [3, 30],
+          is: /^[a-zA-Z0-9_-]+$/,
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [8, 100],
+        },
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          is: /^\+?[\d\s-]+$/,
+        },
+      },
+      role: {
+        type: DataTypes.ENUM("admin", "client", "user"),
+        defaultValue: "user",
+      },
+      pan: {
+        type: DataTypes.STRING,
+        allowNull: false, 
+        validate: {
+          len: [10, 10], 
+        },
+      },
+      clientId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Clients",
+          key: "id",
+        },
       },
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.ENUM('admin', 'client', 'user'),
-      defaultValue: 'user',
-    },
-    clientId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-    },
-    adminId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-    },
-  }, {
-    hooks: {
-      beforeCreate: async (user: UserInstance) => {
-        if (user.password) {
-          user.password = await bcrypt.hash(user.password, 12);
-        }
+    {
+      hooks: {
+        beforeCreate: async (user: UserInstance) => {
+          if (user.password) {
+            user.password = await bcrypt.hash(user.password, 12);
+          }
+        },
+        beforeUpdate: async (user: UserInstance) => {
+          if (user.changed("password")) {
+            user.password = await bcrypt.hash(user.password, 12);
+          }
+        },
       },
-      beforeUpdate: async (user: UserInstance) => {
-        if (user.changed('password')) {
-          user.password = await bcrypt.hash(user.password, 12);
-        }
-      },
-    },
-  });
+    }
+  );
 
-  (UserModel as typeof UserModel & { prototype: UserInstance }).prototype.validPassword = async function (password: string) {
+  (
+    UserModel as typeof UserModel & { prototype: UserInstance }
+  ).prototype.validPassword = async function (password: string) {
     return await bcrypt.compare(password, this.password);
   };
 

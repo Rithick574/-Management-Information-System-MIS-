@@ -1,7 +1,27 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes, Sequelize, Model, Optional } from "sequelize";
 
+interface ClientAttributes {
+  id: string;
+  name: string;
+  industry?: string;
+  email: string;
+  phone?: string;
+  password: string;
+  role: 'admin' | 'client' | 'user';
+  address?: string;
+  pan:string;
+};
+
+interface ClientCreationAttributes extends Optional<ClientAttributes, 'id'> {}
+
+// Instance interface
+interface ClientInstance 
+  extends Model<ClientAttributes, ClientCreationAttributes>,
+    ClientAttributes {
+  validPassword?: (password: string) => Promise<boolean>;
+}
 const Client = (sequelize: Sequelize) => {
-  return sequelize.define("Client", {
+  return sequelize.define<ClientInstance>("Client", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -23,10 +43,6 @@ const Client = (sequelize: Sequelize) => {
         isEmail: true,
       },
     },
-    adminId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    },
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -34,9 +50,24 @@ const Client = (sequelize: Sequelize) => {
         is: /^[\d-]+$/,
       },
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM('admin', 'client', 'user'),
+      defaultValue: 'client',
+    },
     address: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    pan: {
+      type: DataTypes.STRING,
+      allowNull: false, 
+      validate: {
+        len: [10, 10], 
+      },
     },
   });
 };
