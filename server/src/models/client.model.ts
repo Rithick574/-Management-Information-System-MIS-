@@ -6,15 +6,11 @@ interface ClientAttributes {
   industry?: string;
   email: string;
   phone?: string;
-  password: string;
-  role: 'admin' | 'client' | 'user';
   address?: string;
-  pan:string;
 };
 
 interface ClientCreationAttributes extends Optional<ClientAttributes, 'id'> {}
 
-// Instance interface
 interface ClientInstance 
   extends Model<ClientAttributes, ClientCreationAttributes>,
     ClientAttributes {
@@ -50,24 +46,9 @@ const Client = (sequelize: Sequelize) => {
         is: /^[\d-]+$/,
       },
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    role: {
-      type: DataTypes.ENUM('admin', 'client', 'user'),
-      defaultValue: 'client',
-    },
     address: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-    pan: {
-      type: DataTypes.STRING,
-      allowNull: false, 
-      validate: {
-        len: [10, 10], 
-      },
     },
   });
 };

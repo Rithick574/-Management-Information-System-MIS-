@@ -8,8 +8,9 @@ interface UserAttributes {
   password: string;
   phone?: string;
   role: "admin" | "client" | "user";
-  clientId: string;
-  pan:string;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
@@ -64,23 +65,13 @@ const User = (sequelize: Sequelize) => {
         type: DataTypes.ENUM("admin", "client", "user"),
         defaultValue: "user",
       },
-      pan: {
-        type: DataTypes.STRING,
-        allowNull: false, 
-        validate: {
-          len: [10, 10], 
-        },
-      },
-      clientId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: "Clients",
-          key: "id",
-        },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
     },
     {
+      timestamps: true,
       hooks: {
         beforeCreate: async (user: UserInstance) => {
           if (user.password) {
