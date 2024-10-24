@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextFunction, Request, Response } from "express";
-import { AdminModel, ClientModel } from "../models";
+import { ClientModel } from "../models";
 import validatePan from "../services/panValidationService";
 import ErrorResponse from "../middlewares/errorResponse";
 import { z } from "zod";
@@ -64,7 +64,7 @@ export const createClient = async (
 ): Promise<void> => {
   try {
     const sanitizedInput = sanitizeObject(req.body);
-    
+
     try {
       clientCreateSchema.parse(sanitizedInput);
     } catch (validationError: any) {
@@ -88,13 +88,10 @@ export const createClient = async (
       industry: industry?.trim(),
       email: email.toLowerCase().trim(),
       phone: phone?.trim(),
-      pan: pan,
       address: address?.trim(),
-      password: hashedPassword,
-      role: "client",
     });
 
-    const { password: _, ...clientData } = client.get();
+    const { ...clientData } = client.get();
 
     res.status(201).json({
       success: true,
@@ -103,7 +100,7 @@ export const createClient = async (
   } catch (error) {
     if (error instanceof z.ZodError) {
       return next(ErrorResponse.badRequest("Invalid input data"));
-    };
+    }
     next(error);
   }
 };
@@ -181,7 +178,7 @@ export const updateClient = async (
 
     await client.update(updateData);
     await client.reload();
-    const { password, ...updatedClient } = client.get();
+    const {...updatedClient } = client.get();
     res.status(200).json({
       success: true,
       message: "Client updated successfully",

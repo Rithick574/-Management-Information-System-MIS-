@@ -8,7 +8,7 @@ const ActivityLogs = (sequelize: Sequelize) => {
       primaryKey: true,
     },
     user_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: "Users",
@@ -17,7 +17,7 @@ const ActivityLogs = (sequelize: Sequelize) => {
       onDelete: "CASCADE",
     },
     client_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: "Clients", 

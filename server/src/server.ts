@@ -1,13 +1,14 @@
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { clientRouter } from './routes/client.routes';
 import cookieParser from "cookie-parser";
-import { userRouter } from './routes/user.routes';
-import { adminRouter } from './routes/admin.routes';
-import errorHandler from "./middlewares/errorHandler";
 import helmet from "helmet";
 import morgan from "morgan";
+import errorHandler from "./middlewares/errorHandler";
+import { clientRouter } from './routes/client.routes';
+import { userRouter } from './routes/user.routes';
+import { adminRouter } from './routes/admin.routes';
+import { authRoutes } from "./routes/auth.routes";
 
 dotenv.config();
 const app: Application = express();
@@ -29,9 +30,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes
+app.use('/api/v1/auth',authRoutes)
+
 app.use('/api/v1/admins', adminRouter);
 app.use('/api/v1/clients', clientRouter);
 app.use('/api/v1/users', userRouter);
+
 
 app.use("*", (req: Request, res: Response) => {
   res.status(404).json({ success: false, status: 404, message: "API Not Found" });

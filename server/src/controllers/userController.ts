@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UserModel, ClientModel } from "../models";
+import { UserModel, ClientModel, ClientUserModal } from "../models";
 import { z } from "zod";
 import ErrorResponse from "../middlewares/errorResponse";
 import { sanitizeObject } from "../utils/security";
@@ -53,10 +53,9 @@ export const createUser = async (
       name,
       email,
       phone,
-      clientId,
       password,
       role: "user",
-      pan,
+      isActive:true
     });
     const { password: _, ...userData } = user;
     res.status(201).json({
@@ -87,7 +86,7 @@ export const getUsersByClient = async (
       return next(ErrorResponse.notFound("Client not found."));
     }
 
-    const users = await UserModel.findAll({
+    const users = await ClientUserModal.findAll({
       where: { clientId },
       attributes: { exclude: ["password"] },
       order: [["createdAt", "DESC"]],

@@ -1,16 +1,15 @@
 import { Request, Response } from "express";
-import { AdminModel } from "../models";
+import { UserModel } from "../models";
 import bcrypt from "bcryptjs";
-import { Op } from "sequelize";
 
 // Create a new admin
 export const createAdmin = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { username, email, password } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!name || !email || !password) {
     res.status(400).json({
       success: false,
       message: "Username, email, and password are required.",
@@ -19,24 +18,23 @@ export const createAdmin = async (
   }
 
   try {
-    const existingAdmin = await AdminModel.findOne({
-      where: {
-        [Op.or]: [{ username }, { email }],
-      },
+    const existingAdmin = await UserModel.findOne({
+      where: { email, role: "admin" },
     });
 
     if (existingAdmin) {
       res
         .status(409)
-        .json({ success: false, message: "Username or email already in use." });
+        .json({ success: false, message: "Email already in use by an admin" });
       return;
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const admin = await AdminModel.create({
-      username,
+    const admin = await UserModel.create({
+      name,
       email,
-      password: hashedPassword,
+      password,
+      role: "admin",
+      isActive: true,
     });
     const { password: _, ...adminResponse } = admin.toJSON();
     res.status(201).json({ success: true, admin: adminResponse });
@@ -46,14 +44,15 @@ export const createAdmin = async (
   }
 };
 
+//get admin by id and email
 export const getAdmin = async (req: Request, res: Response): Promise<void> => {
-  const { id, username } = req.params;
+  const { id, email } = req.params;
   try {
     let admin;
     if (id) {
-      admin = await AdminModel.findOne({ where: { id } });
-    } else if (username) {
-      admin = await AdminModel.findOne({ where: { username } });
+      admin = await UserModel.findOne({ where: { id, role: "admin" } });
+    } else if (email) {
+      admin = await UserModel.findOne({ where: { email, role: "admin" } });
     }
     if (!admin) {
       res.status(404).json({ message: "Admin not found" });
@@ -65,11 +64,15 @@ export const getAdmin = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getAllAdmins=async(req:Request,res:Response):Promise<void>=>{
+//get all admins
+export const getAllAdmins = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    const admins = await AdminModel.findAll();
+    const admins = await UserModel.findAll({ where: { role: "admin" } });
     res.status(200).json(admins);
   } catch (error) {
     res.status(500).json({ message: "Error fetching admins", error });
   }
-}
+};

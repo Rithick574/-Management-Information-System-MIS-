@@ -20,6 +20,7 @@ dotenv.config();
     console.log("🍃🍃🍃🍃🍃🍃Successfully connected to PostgreSQL🍃🍃🍃🍃🍃🍃");
 
     await sequelize.sync();
+    // await sequelize.sync({ force: true });
     console.log("Database synced");
 
     app;

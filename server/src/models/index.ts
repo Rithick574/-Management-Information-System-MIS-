@@ -6,19 +6,19 @@ import sequelize from "../config/database";
 import ActivityLogs from "./activityLogs.model";
 
 const ClientModel = Client(sequelize);
-const ClientUser = clinetUser(sequelize);
+const ClientUserModal = clinetUser(sequelize);
 const PANDetailsModel = PANDetails(sequelize);
 const UserModel = User(sequelize);
 const ActivityModel = ActivityLogs(sequelize)
 
 
 // Client has many Client Users
-ClientModel.hasMany(ClientUser, { foreignKey: "client_id", as: "clientUsers" });
-ClientUser.belongsTo(ClientModel, { foreignKey: "client_id", as: "client" });
+ClientModel.hasMany(ClientUserModal, { foreignKey: "client_id", as: "clientUsers" });
+ClientUserModal.belongsTo(ClientModel, { foreignKey: "client_id", as: "client" });
 
 //pan card details
-ClientUser.hasOne(PANDetailsModel, { foreignKey: "user_id", as: "panDetails" });
-PANDetailsModel.belongsTo(ClientUser, { foreignKey: "user_id", as: "user" });
+ClientUserModal.hasOne(PANDetailsModel, { foreignKey: "user_id", as: "panDetails" });
+PANDetailsModel.belongsTo(ClientUserModal, { foreignKey: "user_id", as: "user" });
 
 // Activity Logs relationships
 UserModel.hasMany(ActivityModel, { foreignKey: "user_id", as: "activityLogs" });
@@ -27,4 +27,4 @@ ClientModel.hasMany(ActivityModel, { foreignKey: "client_id", as: "activityLogs"
 ActivityModel.belongsTo(ClientModel, { foreignKey: "client_id", as: "client" });
 
 
-export { ClientModel, ClientUser,ActivityModel,UserModel,PANDetailsModel };
+export { ClientModel, ClientUserModal,ActivityModel,UserModel,PANDetailsModel };
